@@ -1,10 +1,7 @@
+
+
 resource "aws_iam_user" "terraform" {
   name = "tf_manager"
-  path = "/"
-}
-
-resource "aws_iam_user" "readonly_user" {
-  name = "ReadOnlyUser"
 }
 
 resource "aws_iam_group" "readonly_group" {
@@ -12,7 +9,7 @@ resource "aws_iam_group" "readonly_group" {
 }
 
 resource "aws_iam_user_group_membership" "readonly_membership" {
-  user = aws_iam_user.readonly_user.name
+  user = aws_iam_user.terraform.name
   groups = [
     aws_iam_group.readonly_group.name
   ]
