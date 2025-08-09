@@ -8,7 +8,7 @@ resource "aws_backup_plan" "main" {
 rule {
   rule_name         = "main-backup-rule"
   target_vault_name = aws_backup_vault.main.name
-  schedule          = "cron(0 12 * * 0 *)"
+  schedule          = "cron(0 12 ? * SUN *)"
   start_window      = 60    # minutes
   completion_window = 300   # minutes
   
