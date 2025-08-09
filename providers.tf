@@ -1,7 +1,7 @@
 terraform {
   cloud {
     organization = "Soli"
-    hostname = "app.terraform.io" 
+    hostname     = "app.terraform.io"
 
     workspaces {
       name = "aws-cloud-project"

@@ -1,28 +1,31 @@
 resource "aws_backup_vault" "main" {
-  name        = "main-backup-vault-custom"
+  count = var.create_backup ? 1 : 0
+  name  = "main-backup-vault-custom"
 }
 
 resource "aws_backup_plan" "main" {
-  name = "main-backup-plan"
+  count = var.create_backup ? 1 : 0
+  name  = "main-backup-plan"
 
-rule {
-  rule_name         = "main-backup-rule"
-  target_vault_name = aws_backup_vault.main.name
-  schedule          = "cron(0 12 ? * SUN *)"
-  start_window      = 60    # minutes
-  completion_window = 300   # minutes
-  
-  lifecycle {
-    delete_after       = 7
+  rule {
+    rule_name         = "main-backup-rule"
+    target_vault_name = aws_backup_vault.main[0].name
+    schedule          = "cron(0 12 ? * SUN *)"
+    start_window      = 60  # minutes
+    completion_window = 300 # minutes
+
+    lifecycle {
+      delete_after = 7
+    }
   }
-}
 
 }
 
 resource "aws_backup_selection" "main_backup" {
-  iam_role_arn = aws_iam_role.backup_role.arn
+  count        = var.create_backup ? 1 : 0
+  iam_role_arn = aws_iam_role.backup_role[0].arn
   name         = "backup_selection"
-  plan_id      = aws_backup_plan.main.id
+  plan_id      = aws_backup_plan.main[0].id
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -33,8 +36,9 @@ resource "aws_backup_selection" "main_backup" {
 
 # Create IAM role for AWS Backup service
 resource "aws_iam_role" "backup_role" {
-  name = "AWSBackupDefaultServiceRole"
-  
+  count = var.create_backup ? 1 : 0
+  name  = "AWSBackupDefaultServiceRole"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -49,19 +53,21 @@ resource "aws_iam_role" "backup_role" {
   })
 
   tags = {
-    Name = "AWS Backup Service Role"
+    Name    = "AWS Backup Service Role"
     Purpose = "Backup Operations"
   }
 }
 
 # Attach AWS managed policy for backup operations
 resource "aws_iam_role_policy_attachment" "backup_service_policy" {
+  count      = var.create_backup ? 1 : 0
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
-  role       = aws_iam_role.backup_role.name
+  role       = aws_iam_role.backup_role[0].name
 }
 
 # Attach AWS managed policy for restore operations
 resource "aws_iam_role_policy_attachment" "backup_restore_policy" {
+  count      = var.create_backup ? 1 : 0
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
-  role       = aws_iam_role.backup_role.name
+  role       = aws_iam_role.backup_role[0].name
 }

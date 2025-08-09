@@ -11,12 +11,12 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] 
+  owners = ["099720109477"]
 }
 
 resource "aws_instance" "jump_host" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.jump_host.id]
 
   subnet_id = var.subnet_id
@@ -32,7 +32,7 @@ resource "aws_key_pair" "jump_host_key" {
 }
 
 resource "aws_security_group" "jump_host" {
-  name = "jumphost_sg"
+  name        = "jumphost_sg"
   description = "security group for jump host"
 
 }
@@ -42,7 +42,7 @@ resource "aws_security_group_rule" "allow_all_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]  
-  security_group_id = aws_security_group.jump_host.id 
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.jump_host.id
 }
 

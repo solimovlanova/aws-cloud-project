@@ -23,7 +23,7 @@ resource "aws_iam_group_policy_attachment" "readonly_access" {
 locals {
   policies = {
     Compute-Limited-FreeTier-Policy = jsonencode({
-      Version   = "2012-10-17",
+      Version = "2012-10-17",
       Statement = [{
         Effect   = "Allow",
         Action   = "ec2:RunInstances",
@@ -41,7 +41,7 @@ locals {
     })
 
     Storage-Limited-FreeTier-Policy = jsonencode({
-      Version   = "2012-10-17",
+      Version = "2012-10-17",
       Statement = [
         {
           Effect   = "Allow",
@@ -49,8 +49,8 @@ locals {
           Resource = "arn:aws:s3:::*"
         },
         {
-          Effect   = "Allow",
-          Action   = [
+          Effect = "Allow",
+          Action = [
             "ec2:CreateVolume",
             "ec2:AttachVolume",
             "ec2:ModifyVolume",
@@ -64,8 +64,8 @@ locals {
           }
         },
         {
-          Effect   = "Allow",
-          Action   = [
+          Effect = "Allow",
+          Action = [
             "rds:CreateDBInstance",
             "rds:ModifyDBInstance",
             "rds:DeleteDBInstance"
@@ -81,10 +81,10 @@ locals {
     })
 
     DynamoDB-Limited-FreeTier-Policy = jsonencode({
-      Version   = "2012-10-17",
+      Version = "2012-10-17",
       Statement = [{
-        Effect   = "Deny",
-        Action   = [
+        Effect = "Deny",
+        Action = [
           "dynamodb:CreateGlobalTable",
           "dynamodb:UpdateGlobalTable",
           "dynamodb:CreateTableReplica",
@@ -101,67 +101,67 @@ locals {
       }]
     })
 
- Non-FreeTier-Deny-Policy = jsonencode({
-  Version = "2012-10-17",
-  Statement = [
-    {
-      Sid    = "DenyNonFreeTierEC2",
-      Effect = "Deny",
-      Action = "ec2:RunInstances",
-      Resource = "*",
-      Condition = {
-        StringNotEquals = {
-          "ec2:InstanceType" = [
-            "t2.micro",
-            "t3.micro",
-            "t4g.micro"
-          ]
+    Non-FreeTier-Deny-Policy = jsonencode({
+      Version = "2012-10-17",
+      Statement = [
+        {
+          Sid      = "DenyNonFreeTierEC2",
+          Effect   = "Deny",
+          Action   = "ec2:RunInstances",
+          Resource = "*",
+          Condition = {
+            StringNotEquals = {
+              "ec2:InstanceType" = [
+                "t2.micro",
+                "t3.micro",
+                "t4g.micro"
+              ]
+            },
+            NumericGreaterThan = {
+              "ec2:VolumeSize" = 15
+            }
+          }
         },
-        NumericGreaterThan = {
-          "ec2:VolumeSize" = 15
+        {
+          Sid      = "DenyNonFreeTierRDS",
+          Effect   = "Deny",
+          Action   = "rds:CreateDBInstance",
+          Resource = "*",
+          Condition = {
+            NumericGreaterThan = {
+              "rds:AllocatedStorage" = 20
+            }
+          }
+        },
+        {
+          Sid    = "DenyNonFreeTierDynamoDB",
+          Effect = "Deny",
+          Action = [
+            "dynamodb:CreateTable",
+            "dynamodb:CreateGlobalTable",
+            "dynamodb:CreateTableReplica",
+            "dynamodb:UpdateTable",
+            "dynamodb:DeleteTable",
+            "dynamodb:UpdateTableReplica",
+            "dynamodb:UpdateContinuousBackups",
+            "dynamodb:RestoreTableFromBackup",
+            "dynamodb:RestoreTableToPointInTime"
+          ],
+          Resource = "*"
+        },
+        {
+          Sid    = "AllowDescriptiveActions",
+          Effect = "Allow",
+          Action = [
+            "ec2:DescribeInstances",
+            "rds:DescribeDBInstances",
+            "dynamodb:DescribeTable",
+            "dynamodb:ListTables"
+          ],
+          Resource = "*"
         }
-      }
-    },
-    {
-      Sid    = "DenyNonFreeTierRDS",
-      Effect = "Deny",
-      Action = "rds:CreateDBInstance",
-      Resource = "*",
-      Condition = {
-        NumericGreaterThan = {
-          "rds:AllocatedStorage" = 20
-        }
-      }
-    },
-    {
-      Sid    = "DenyNonFreeTierDynamoDB",
-      Effect = "Deny",
-      Action = [
-        "dynamodb:CreateTable",
-        "dynamodb:CreateGlobalTable",
-        "dynamodb:CreateTableReplica",
-        "dynamodb:UpdateTable",
-        "dynamodb:DeleteTable",
-        "dynamodb:UpdateTableReplica",
-        "dynamodb:UpdateContinuousBackups",
-        "dynamodb:RestoreTableFromBackup",
-        "dynamodb:RestoreTableToPointInTime"
-      ],
-      Resource = "*"
-    },
-    {
-      Sid    = "AllowDescriptiveActions",
-      Effect = "Allow",
-      Action = [
-        "ec2:DescribeInstances",
-        "rds:DescribeDBInstances",
-        "dynamodb:DescribeTable",
-        "dynamodb:ListTables"
-      ],
-      Resource = "*"
-    }
-  ]
-})
+      ]
+    })
 
   }
 }

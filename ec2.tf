@@ -14,7 +14,7 @@
 #               sudo systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
 #               EOF
 
-           
+
 # }
 
 # resource "aws_iam_instance_profile" "dev_profile" {
