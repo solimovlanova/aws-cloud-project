@@ -14,3 +14,6 @@ variable "create_db_instance_docdb"{
   type = bool
 }
 
+variable "subnet_id" {
+  type = string
+}

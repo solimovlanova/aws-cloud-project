@@ -17,10 +17,11 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "jump_host" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
-  security_groups = [aws_security_group.jump_host.id]
+  vpc_security_group_ids = [aws_security_group.jump_host.id]
 
+  subnet_id = var.subnet_id
   tags = {
-    Name = "jump host"
+    Name = "jump_host"
   }
 }
 
