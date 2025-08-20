@@ -22,3 +22,7 @@ variable "subnet_id" {
 variable "create_backup" {
   type = bool
 }
+
+variable "email" {
+  type = string
+}
