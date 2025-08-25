@@ -25,3 +25,23 @@ resource "aws_sns_topic_subscription" "jump_host" {
   protocol   = "email"
   endpoint   = var.email
 }
+
+
+resource "aws_sns_topic_policy" "jump_host" {
+  arn    = aws_sns_topic.jump_host.arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudwatch.amazonaws.com"
+        }
+        Action = "SNS:Publish"
+        Resource = aws_sns_topic.jump_host.arn
+      }
+    ]
+  })
+}
+
