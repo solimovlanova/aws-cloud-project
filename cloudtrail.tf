@@ -6,7 +6,7 @@ resource "aws_cloudtrail" "main" {
 }
 
 resource "aws_s3_bucket" "cloudtrail" {
-  bucket        = "cloudtrail"
+  bucket        = "cloudtrail-${random_string.cloudtrail.id}"
   force_destroy = true
 }
 
