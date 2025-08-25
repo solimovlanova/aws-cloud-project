@@ -23,6 +23,9 @@ resource "aws_instance" "jump_host" {
   tags = {
     Name = "jump_host"
   }
+  lifecycle {
+    ignore_changes = [ami]
+  }
 }
 
 resource "aws_key_pair" "jump_host_key" {
