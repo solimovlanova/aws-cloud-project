@@ -8,7 +8,8 @@ resource "aws_cloudwatch_metric_alarm" "jump_host_cpu" {
   statistic                 = "Average"
   threshold                 = 80
   alarm_description         = "This metric monitors ec2 cpu utilization"
-  insufficient_data_actions = []
+  ok_actions = [aws_sns_topic.jump_host.arn]
+  alarm_actions = [aws_sns_topic.jump_host.arn]
   
   dimensions = {
     InstanceId = aws_instance.jump_host.id
