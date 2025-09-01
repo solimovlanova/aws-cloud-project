@@ -21,11 +21,16 @@ data "aws_iam_policy_document" "cloudtrail" {
     }
 
     actions   = ["s3:GetBucketAcl"]
-    resources = [aws_s3_bucket.cloudtrail.arn]
+    resources = ["arn:${data.aws_partition.current.partition}:s3:::${aws_s3_bucket.cloudtrail.bucket}"]
     condition {
       test     = "StringEquals"
       variable = "aws:SourceArn"
       values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.main.name}"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = ["${data.aws_caller_identity.current.account_id}"]
     }
   }
 
@@ -39,7 +44,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     }
 
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.cloudtrail.arn}/prefix/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    resources = ["arn:${data.aws_partition.current.partition}:s3:::${aws_s3_bucket.cloudtrail.bucket}/prefix/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
 
     condition {
       test     = "StringEquals"
@@ -50,6 +55,11 @@ data "aws_iam_policy_document" "cloudtrail" {
       test     = "StringEquals"
       variable = "aws:SourceArn"
       values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.main.name}"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = ["${data.aws_caller_identity.current.account_id}"]
     }
   }
 }
