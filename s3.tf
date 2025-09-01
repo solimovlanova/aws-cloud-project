@@ -1,5 +1,5 @@
-resource "aws_s3_bucket" "terraform" {
-  bucket = "state-file-backup-bucket-soli"
+resource "aws_s3_bucket" "test_eventbridge" {
+  bucket = "eventbridge-${random_string.cloudtrail.id}"
 
   tags = {
     Name        = "terraform"
@@ -7,9 +7,3 @@ resource "aws_s3_bucket" "terraform" {
   }
 }
 
-module "s3_bucket" {
-  source = "terraform-aws-modules/s3-bucket/aws"
-
-  bucket = "my-s3-bucket-rds-export-cross-region-33329"
-
-}
