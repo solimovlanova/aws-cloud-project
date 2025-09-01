@@ -12,7 +12,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 
 data "aws_iam_policy_document" "cloudtrail" {
   statement {
-    sid    = "AWSCloudTrailAclCheck"
+    sid    = "AWSCloudTrailBucketAccess"
     effect = "Allow"
 
     principals {
@@ -20,47 +20,16 @@ data "aws_iam_policy_document" "cloudtrail" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
 
-    actions   = ["s3:GetBucketAcl"]
-    resources = ["arn:${data.aws_partition.current.partition}:s3:::${aws_s3_bucket.cloudtrail.bucket}"]
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.main.name}"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values   = ["${data.aws_caller_identity.current.account_id}"]
-    }
-  }
-
-  statement {
-    sid    = "AWSCloudTrailWrite"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-
-    actions   = ["s3:PutObject"]
-    resources = ["arn:${data.aws_partition.current.partition}:s3:::${aws_s3_bucket.cloudtrail.bucket}/prefix/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-      values   = ["bucket-owner-full-control"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:${data.aws_partition.current.partition}:cloudtrail:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.main.name}"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values   = ["${data.aws_caller_identity.current.account_id}"]
-    }
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:ListBucket",
+      "s3:PutObject",
+      "s3:GetObject"
+    ]
+    resources = [
+      aws_s3_bucket.cloudtrail.arn,
+      "${aws_s3_bucket.cloudtrail.arn}/*"
+    ]
   }
 }
 
