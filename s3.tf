@@ -7,3 +7,8 @@ resource "aws_s3_bucket" "test_eventbridge" {
   }
 }
 
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket      = aws_s3_bucket.test_eventbridge.id
+  eventbridge = true
+}
+

@@ -1,85 +1,31 @@
-resource "aws_cloudwatch_event_rule" "s3_put" {
-  name = "S3AllActionsToSNS"
+# EventBridge rule for S3 events
+resource "aws_cloudwatch_event_rule" "s3_events" {
+  name        = "s3-object-events"
+  description = "Trigger Lambda on S3 object put/delete events"
+
   event_pattern = jsonencode({
-    source = ["aws.s3"],
-    "detail-type" = ["AWS API Call via CloudTrail"],
-    resources = [aws_s3_bucket.test_eventbridge.id],
+    source      = ["aws.s3"]
+    detail-type = ["Object Created", "Object Deleted"]
     detail = {
-      eventSource = ["s3.amazonaws.com"]
-      
+      bucket = {
+        name = [aws_s3_bucket.test_eventbridge.bucket]
+      }
     }
   })
 }
 
-resource "aws_cloudwatch_event_target" "sns" {
-  rule      = aws_cloudwatch_event_rule.s3_put.name
-  target_id = "SendToSNS"
-  arn       = aws_sns_topic.eventbridge_topic.arn
-  role_arn  = aws_iam_role.eventbridge_s3_role.arn
+# EventBridge target - Lambda function
+resource "aws_cloudwatch_event_target" "lambda_target" {
+  rule      = aws_cloudwatch_event_rule.s3_events.name
+  target_id = "SendToLambda"
+  arn       = aws_lambda_function.s3_event_processor.arn
 }
 
-resource "aws_sns_topic" "eventbridge_topic" {
-  name = "eventbridge-sns-topic"
-}
-
-resource "aws_sns_topic_policy" "default" {
-  arn    = aws_sns_topic.eventbridge_topic.arn
-  policy = data.aws_iam_policy_document.sns_topic_policy.json
-}
-
-data "aws_iam_policy_document" "sns_topic_policy" {
-  statement {
-    effect  = "Allow"
-    actions = ["SNS:Publish"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
-    }
-
-    resources = [aws_sns_topic.eventbridge_topic.arn]
-  }
-}
-
-
-resource "aws_iam_role" "eventbridge_s3_role" {
-  name = "eventbridge-s3-access-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "events.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "eventbridge_s3_policy" {
-  name = "eventbridge-s3-access-policy"
-  role = aws_iam_role.eventbridge_s3_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:GetObjectVersion",
-          "s3:PutObject",
-          "s3:DeleteObject"
-        ]
-        Resource = [
-          "*" 
-        ]
-      }
-    ]
-  })
+# Permission for EventBridge to invoke Lambda
+resource "aws_lambda_permission" "allow_eventbridge" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.s3_event_processor.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.s3_events.arn
 }
