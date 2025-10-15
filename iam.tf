@@ -183,6 +183,7 @@ resource "aws_iam_account_alias" "alias" {
 # -----------------------------------------------------------------------------
 # Lambda execution role
 resource "aws_iam_role" "lambda_role" {
+  count = var.create_event_processor_lambda ? 1 : 0
   name = "s3-event-processor-role"
 
   assume_role_policy = jsonencode({
@@ -201,12 +202,14 @@ resource "aws_iam_role" "lambda_role" {
 
 # Basic Lambda execution policy
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.lambda_role.name
+  count = var.create_event_processor_lambda ? 1 : 0
+  role       = aws_iam_role.lambda_role[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # SNS publish policy for Lambda
 resource "aws_iam_policy" "lambda_sns_policy" {
+  count = var.create_event_processor_lambda ? 1 : 0
   name        = "s3-event-processor-sns-policy"
   path        = "/"
   description = "IAM policy for SNS publishing from Lambda"
@@ -227,8 +230,9 @@ resource "aws_iam_policy" "lambda_sns_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_sns" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda_sns_policy.arn
+  count = var.create_event_processor_lambda ? 1 : 0
+  role       = aws_iam_role.lambda_role[0].name
+  policy_arn = aws_iam_policy.lambda_sns_policy[0].arn
 }
 
 # -----------------------------------------------------------------------------

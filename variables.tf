@@ -26,3 +26,11 @@ variable "create_backup" {
 variable "email" {
   type = string
 }
+
+variable "create_jump_host" {
+  type = bool
+}
+
+variable "create_event_processor_lambda" {
+  type = bool
+}

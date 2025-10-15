@@ -4,7 +4,7 @@ resource "aws_docdb_cluster" "main" {
   availability_zones     = ["us-west-2a"]
   master_username        = "admin"
   master_password        = var.db_password
-  vpc_security_group_ids = [aws_security_group.jump_host.id]
+  vpc_security_group_ids = [aws_security_group.jump_host[0].id]
 
 }
 
@@ -21,12 +21,13 @@ resource "aws_security_group" "docdb" {
 }
 
 resource "aws_security_group_rule" "docdb_rule" {
+  count = var.create_db_instance_docdb && var.create_jump_host ?  1 : 0 
   protocol                 = "tcp"
   type                     = "ingress"
   from_port                = 27017
   to_port                  = 27017
   security_group_id        = aws_security_group.docdb.id     #this is security group we attach this rule TO.
-  source_security_group_id = aws_security_group.jump_host.id #This is security group we will traffic FROM.
+  source_security_group_id = aws_security_group.jump_host[0].id #This is security group we will traffic FROM.
 
 }
 

@@ -26,11 +26,12 @@ resource "aws_security_group" "postgres" {
 }
 
 resource "aws_security_group_rule" "jump_host_postgres" {
+  count = var.create_db_instance_postgres && var.create_jump_host ? 1 : 0 
   protocol                 = "tcp"
   from_port                = 5432
   to_port                  = 5432
   type                     = "ingress"
   security_group_id        = aws_security_group.postgres.id
-  source_security_group_id = aws_security_group.jump_host.id
+  source_security_group_id = aws_security_group.jump_host[0].id
 }
 
