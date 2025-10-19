@@ -21,7 +21,7 @@ resource "aws_instance" "jump_host" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.jump_host[0].id] 
 
-
+#add systems manager agent "SSM agent" - user data,dont' forget to find the correct installation for ubuntu.
   subnet_id = var.subnet_id
   tags = {
     Name = "jump_host"
@@ -55,3 +55,4 @@ resource "aws_security_group_rule" "allow_all_egress" {
   security_group_id = aws_security_group.jump_host[0].id 
 }
 
+# add here policy and role SSM aws managed policy

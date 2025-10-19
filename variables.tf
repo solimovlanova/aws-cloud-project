@@ -34,3 +34,11 @@ variable "create_jump_host" {
 variable "create_event_processor_lambda" {
   type = bool
 }
+
+variable "create_app1" {
+  type = bool
+}
+
+variable "create_alb" {
+  type = bool
+}
