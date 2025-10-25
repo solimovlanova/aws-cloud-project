@@ -23,6 +23,7 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_security_group_rule" "http-alb" {
+  count = var.create_alb ? 1 : 0
   type              = "ingress"
   from_port         = 80
   to_port           = 80
@@ -32,6 +33,7 @@ resource "aws_security_group_rule" "http-alb" {
 }
 
 resource "aws_security_group_rule" "https-alb" {
+  count = var.create_alb ? 1 : 0
   type              = "ingress"
   from_port         = 443
   to_port           = 443
