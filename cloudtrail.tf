@@ -10,8 +10,6 @@ resource "aws_s3_bucket" "cloudtrail" {
   force_destroy = true
 }
 
-data "aws_caller_identity" "current" {}
-
 data "aws_iam_policy_document" "cloudtrail" {
   statement {
     sid    = "AWSCloudTrailAclCheck"
