@@ -17,7 +17,7 @@ data "aws_ami" "amazon_linux_2" {
 resource "aws_instance" "application_1" {
  count = var.create_app1 ? 1 : 0
  ami = data.aws_ami.amazon_linux_2.id
- instance_type = "t2.micro"
+ instance_type = "t3.micro"
  vpc_security_group_ids = [aws_security_group.app1[0].id]
  subnet_id = data.aws_subnets.public.ids[0]
  lifecycle {
