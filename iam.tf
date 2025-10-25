@@ -175,7 +175,7 @@ resource "aws_iam_group_policy" "custom_policies" {
 }
 
 resource "aws_iam_account_alias" "alias" {
-  account_alias = "solimovlanova"
+  account_alias = "solimovlanova-aws1"
 }
 
 # -----------------------------------------------------------------------------

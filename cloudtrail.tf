@@ -10,9 +10,11 @@ resource "aws_s3_bucket" "cloudtrail" {
   force_destroy = true
 }
 
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "cloudtrail" {
   statement {
-    sid    = "AWSCloudTrailBucketAccess"
+    sid    = "AWSCloudTrailAclCheck"
     effect = "Allow"
 
     principals {
@@ -21,15 +23,34 @@ data "aws_iam_policy_document" "cloudtrail" {
     }
 
     actions = [
-      "s3:GetBucketAcl",
-      "s3:ListBucket",
-      "s3:PutObject",
-      "s3:GetObject"
+      "s3:GetBucketAcl"
     ]
     resources = [
-      aws_s3_bucket.cloudtrail.arn,
+      aws_s3_bucket.cloudtrail.arn
+    ]
+  }
+
+  statement {
+    sid    = "AWSCloudTrailWrite"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
       "${aws_s3_bucket.cloudtrail.arn}/*"
     ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
   }
 }
 

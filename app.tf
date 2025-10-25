@@ -1,10 +1,28 @@
 
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+}
+
 resource "aws_instance" "application_1" {
  count = var.create_app1 ? 1 : 0
- ami = "ami-033a3fad07a25c231"
+ ami = data.aws_ami.amazon_linux_2.id
  instance_type = "t2.micro"
- security_groups = [aws_security_group.app1[0].name]
+ vpc_security_group_ids = [aws_security_group.app1[0].id]
  subnet_id = data.aws_subnets.public.ids[0]
+ lifecycle {
+   ignore_changes = [ ami ]
+ }
  tags = {
    Name = "Application_1"
  }
