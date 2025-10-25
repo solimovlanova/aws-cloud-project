@@ -43,6 +43,7 @@ resource "aws_security_group_rule" "https-alb" {
 }
 
 resource "aws_lb_target_group" "application_1" {
+  count = var.create_alb && var.create_app1 ? 1 : 0
   name     = "tg-application-1"
   port     = 80
   protocol = "HTTP"
@@ -66,7 +67,7 @@ resource "aws_lb_listener" "front_end_app1" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.application_1.arn
+    target_group_arn = aws_lb_target_group.application_1[0].arn
   }
 }
 
