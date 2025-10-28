@@ -1,6 +1,6 @@
 # EventBridge rule for S3 events
 resource "aws_cloudwatch_event_rule" "s3_events" {
-  count = var.create_event_processor_lambda ? 1 : 0
+  count       = var.create_event_processor_lambda ? 1 : 0
   name        = "s3-object-events"
   description = "Trigger Lambda on S3 object put/delete events"
 
@@ -17,7 +17,7 @@ resource "aws_cloudwatch_event_rule" "s3_events" {
 
 # EventBridge target - Lambda function
 resource "aws_cloudwatch_event_target" "lambda_target" {
-  count = var.create_event_processor_lambda ? 1 : 0
+  count     = var.create_event_processor_lambda ? 1 : 0
   rule      = aws_cloudwatch_event_rule.s3_events[0].name
   target_id = "SendToLambda"
   arn       = aws_lambda_function.s3_event_processor[0].arn
@@ -25,7 +25,7 @@ resource "aws_cloudwatch_event_target" "lambda_target" {
 
 # Permission for EventBridge to invoke Lambda
 resource "aws_lambda_permission" "allow_eventbridge" {
-  count = var.create_event_processor_lambda ? 1 : 0
+  count         = var.create_event_processor_lambda ? 1 : 0
   statement_id  = "AllowExecutionFromEventBridge"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.s3_event_processor[0].function_name

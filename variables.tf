@@ -42,3 +42,11 @@ variable "create_app1" {
 variable "create_alb" {
   type = bool
 }
+variable "create_custom_vpc" {
+  type = bool
+
+}
+
+variable "use_default_vpc" {
+  type = bool
+}

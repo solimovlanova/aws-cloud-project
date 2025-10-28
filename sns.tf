@@ -81,16 +81,16 @@ data "aws_iam_policy_document" "sns_jump_host_topic_policy" {
   statement {
     sid    = "AllowCloudWatchToPublish"
     effect = "Allow"
-    
+
     principals {
       type        = "Service"
       identifiers = ["cloudwatch.amazonaws.com"]
     }
-    
+
     actions = [
       "SNS:Publish"
     ]
-    
+
     resources = [
       aws_sns_topic.jump_host.arn
     ]

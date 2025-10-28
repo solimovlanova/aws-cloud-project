@@ -16,18 +16,19 @@ resource "aws_docdb_cluster_instance" "cluster_instances" {
 }
 
 resource "aws_security_group" "docdb" {
+  count       = var.create_db_instance_docdb ? 1 : 0
   name        = "docdb_sg"
   description = "this security group allows connection to db"
+  vpc_id      = local.vpc_id
 }
 
 resource "aws_security_group_rule" "docdb_rule" {
-  count = var.create_db_instance_docdb && var.create_jump_host ?  1 : 0 
+  count                    = var.create_db_instance_docdb && var.create_jump_host ? 1 : 0
   protocol                 = "tcp"
   type                     = "ingress"
   from_port                = 27017
   to_port                  = 27017
-  security_group_id        = aws_security_group.docdb.id     #this is security group we attach this rule TO.
-  source_security_group_id = aws_security_group.jump_host[0].id #This is security group we will traffic FROM.
-
+  security_group_id        = aws_security_group.docdb[0].id
+  source_security_group_id = aws_security_group.jump_host[0].id
 }
 

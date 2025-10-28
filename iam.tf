@@ -184,7 +184,7 @@ resource "aws_iam_account_alias" "alias" {
 # Lambda execution role
 resource "aws_iam_role" "lambda_role" {
   count = var.create_event_processor_lambda ? 1 : 0
-  name = "s3-event-processor-role"
+  name  = "s3-event-processor-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -202,14 +202,14 @@ resource "aws_iam_role" "lambda_role" {
 
 # Basic Lambda execution policy
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  count = var.create_event_processor_lambda ? 1 : 0
+  count      = var.create_event_processor_lambda ? 1 : 0
   role       = aws_iam_role.lambda_role[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # SNS publish policy for Lambda
 resource "aws_iam_policy" "lambda_sns_policy" {
-  count = var.create_event_processor_lambda ? 1 : 0
+  count       = var.create_event_processor_lambda ? 1 : 0
   name        = "s3-event-processor-sns-policy"
   path        = "/"
   description = "IAM policy for SNS publishing from Lambda"
@@ -230,7 +230,7 @@ resource "aws_iam_policy" "lambda_sns_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_sns" {
-  count = var.create_event_processor_lambda ? 1 : 0
+  count      = var.create_event_processor_lambda ? 1 : 0
   role       = aws_iam_role.lambda_role[0].name
   policy_arn = aws_iam_policy.lambda_sns_policy[0].arn
 }
@@ -273,7 +273,7 @@ resource "aws_iam_role_policy" "eventbridge_s3_policy" {
           "s3:DeleteObject"
         ]
         Resource = [
-          "*" 
+          "*"
         ]
       }
     ]

@@ -1,10 +1,10 @@
 resource "aws_lb" "application" {
-  count = var.create_alb ? 1 : 0
+  count              = var.create_alb ? 1 : 0
   name               = "test-lb-tf"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb[0].id]
-  subnets            = [data.aws_subnets.public.ids[0], data.aws_subnets.public.ids[1]]
+  subnets            = var.use_default_vpc ? local.default_subnet_ids : local.public_subnet_ids
 
   tags = {
     Environment = "production"
@@ -12,10 +12,11 @@ resource "aws_lb" "application" {
 }
 
 resource "aws_security_group" "alb" {
-  count = var.create_alb ? 1 : 0
+  count       = var.create_alb ? 1 : 0
   name        = "alb-sg"
   description = "Allow traffic to ALB"
-  vpc_id      = data.aws_vpc.main.id
+  vpc_id      = local.vpc_id 
+
 
   tags = {
     Name = "alb-sg"
@@ -23,31 +24,31 @@ resource "aws_security_group" "alb" {
 }
 
 resource "aws_security_group_rule" "http-alb" {
-  count = var.create_alb ? 1 : 0
+  count             = var.create_alb ? 1 : 0
   type              = "ingress"
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  cidr_blocks       = [data.aws_vpc.main.cidr_block]
+  cidr_blocks       = [local.vpc_cidr]
   security_group_id = aws_security_group.alb[0].id
 }
 
 resource "aws_security_group_rule" "https-alb" {
-  count = var.create_alb ? 1 : 0
+  count             = var.create_alb ? 1 : 0
   type              = "ingress"
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [data.aws_vpc.main.cidr_block]
+  cidr_blocks       = [local.vpc_cidr]
   security_group_id = aws_security_group.alb[0].id
 }
 
 resource "aws_lb_target_group" "application_1" {
-  count = var.create_alb && var.create_app1 ? 1 : 0
+  count    = var.create_alb && var.create_app1 ? 1 : 0
   name     = "tg-application-1"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = data.aws_vpc.main.id
+  vpc_id   = local.vpc_id
   health_check {
     path                = "/"
     protocol            = "HTTP"
