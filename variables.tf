@@ -50,3 +50,7 @@ variable "create_custom_vpc" {
 variable "use_default_vpc" {
   type = bool
 }
+
+variable "create_vpn_server" {
+  type = bool
+}
