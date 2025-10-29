@@ -30,7 +30,7 @@ resource "aws_instance" "application_1" {
 
 
 resource "aws_lb_target_group_attachment" "application_1" {
-  count            = var.create_app1 ? 1 : 0
+  count            = var.create_app1 && var.create_alb ? 1 : 0
   target_group_arn = aws_lb_target_group.application_1[0].arn
   target_id        = aws_instance.application_1[0].id
   port             = 80
