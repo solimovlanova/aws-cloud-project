@@ -38,7 +38,7 @@ resource "aws_lb_target_group_attachment" "application_1" {
 
 
 resource "aws_security_group" "app1" {
-  count       = var.create_alb ? 1 : 0
+  count       = var.create_app1 ? 1 : 0
   name        = "ec2-sg"
   description = "Allow traffic to EC2"
   vpc_id      = local.vpc_id
@@ -49,7 +49,7 @@ resource "aws_security_group" "app1" {
 }
 
 resource "aws_security_group_rule" "http-alb-ec2" {
-  count                    = var.create_alb ? 1 : 0
+  count                    = var.create_alb  && var.create_app1 ? 1 : 0 
   type                     = "ingress"
   from_port                = 80
   to_port                  = 80
@@ -60,7 +60,7 @@ resource "aws_security_group_rule" "http-alb-ec2" {
 
 
 resource "aws_security_group_rule" "https-alb-ec2" {
-  count                    = var.create_alb ? 1 : 0
+  count                    = var.create_alb && var.create_app1 ? 1 : 0
   type                     = "ingress"
   from_port                = 443
   to_port                  = 443
