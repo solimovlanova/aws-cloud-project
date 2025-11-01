@@ -4,8 +4,8 @@ resource "aws_docdb_cluster" "main" {
   availability_zones     = ["us-west-2a"]
   master_username        = "admin"
   master_password        = var.db_password
-  vpc_security_group_ids = [aws_security_group.jump_host[0].id]
-
+  vpc_security_group_ids = [aws_security_group.docdb[0].id]
+  db_subnet_group_name   = aws_db_subnet_group.main[0].id
 }
 
 resource "aws_docdb_cluster_instance" "cluster_instances" {

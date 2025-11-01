@@ -54,3 +54,33 @@ variable "use_default_vpc" {
 variable "create_vpn_server" {
   type = bool
 }
+
+variable "create_sns_topics" {
+  type        = bool
+  description = "Whether to create SNS topics for notifications"
+  default     = false
+}
+
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "Whether to create CloudWatch alarms"
+  default     = false
+}
+
+variable "enable_cloudtrail" {
+  type        = bool
+  description = "Whether to enable CloudTrail logging"
+  default     = true
+}
+
+variable "create_dynamodb" {
+  type        = bool
+  description = "Whether to create DynamoDB table"
+  default     = false
+}
+
+variable "create_ecs_cluster" {
+  type        = bool
+  description = "Whether to create ECS cluster"
+  default     = false
+}

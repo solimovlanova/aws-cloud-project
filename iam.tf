@@ -209,7 +209,7 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 
 # SNS publish policy for Lambda
 resource "aws_iam_policy" "lambda_sns_policy" {
-  count       = var.create_event_processor_lambda ? 1 : 0
+  count       = var.create_event_processor_lambda && var.create_sns_topics ? 1 : 0
   name        = "s3-event-processor-sns-policy"
   path        = "/"
   description = "IAM policy for SNS publishing from Lambda"
@@ -223,14 +223,14 @@ resource "aws_iam_policy" "lambda_sns_policy" {
           "sns:Publish",
           "sns:GetTopicAttributes"
         ]
-        Resource = aws_sns_topic.eventbridge_topic.arn
+        Resource = aws_sns_topic.eventbridge_topic[0].arn
       }
     ]
   })
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_sns" {
-  count      = var.create_event_processor_lambda ? 1 : 0
+  count      = var.create_event_processor_lambda && var.create_sns_topics ? 1 : 0
   role       = aws_iam_role.lambda_role[0].name
   policy_arn = aws_iam_policy.lambda_sns_policy[0].arn
 }
@@ -239,7 +239,8 @@ resource "aws_iam_role_policy_attachment" "lambda_sns" {
 # EventBridge Service Role
 # -----------------------------------------------------------------------------
 resource "aws_iam_role" "eventbridge_s3_role" {
-  name = "eventbridge-s3-access-role"
+  count = var.create_event_processor_lambda ? 1 : 0
+  name  = "eventbridge-s3-access-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -256,8 +257,9 @@ resource "aws_iam_role" "eventbridge_s3_role" {
 }
 
 resource "aws_iam_role_policy" "eventbridge_s3_policy" {
-  name = "eventbridge-s3-access-policy"
-  role = aws_iam_role.eventbridge_s3_role.id
+  count = var.create_event_processor_lambda ? 1 : 0
+  name  = "eventbridge-s3-access-policy"
+  role  = aws_iam_role.eventbridge_s3_role[0].id
 
   policy = jsonencode({
     Version = "2012-10-17"

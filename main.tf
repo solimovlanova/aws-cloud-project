@@ -36,3 +36,5 @@ locals {
   vpc_id                = var.use_default_vpc ? data.aws_vpc.main[0].id : aws_vpc.main[0].id
   vpc_cidr              = var.use_default_vpc ? data.aws_vpc.main[0].cidr_block : aws_vpc.main[0].cidr_block
 }
+
+

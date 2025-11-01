@@ -21,7 +21,7 @@ resource "aws_lambda_function" "s3_event_processor" {
       LOG_LEVEL      = "INFO"
       RECIPIENT_NAME = "Soli"
       SENDER_NAME    = "AWS Notification System"
-      SNS_TOPIC_ARN  = aws_sns_topic.eventbridge_topic.arn
+      SNS_TOPIC_ARN  = var.create_sns_topics ? aws_sns_topic.eventbridge_topic[0].arn : ""
     }
   }
 }

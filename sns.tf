@@ -8,6 +8,8 @@
 # -----------------------------------------------------------------------------
 
 resource "aws_sns_topic" "eventbridge_topic" {
+  count = var.create_sns_topics && var.create_event_processor_lambda ? 1 : 0
+  
   name = "eventbridge-sns-topic"
 
   tags = {
@@ -18,7 +20,8 @@ resource "aws_sns_topic" "eventbridge_topic" {
 
 
 resource "aws_sns_topic_subscription" "eventbridge_subscription" {
-  topic_arn = aws_sns_topic.eventbridge_topic.arn
+  count     = var.create_sns_topics && var.create_event_processor_lambda ? 1 : 0
+  topic_arn = aws_sns_topic.eventbridge_topic[0].arn
   protocol  = "email"
   endpoint  = var.email
 }
@@ -26,12 +29,15 @@ resource "aws_sns_topic_subscription" "eventbridge_subscription" {
 
 # IAM policy document for EventBridge SNS topic
 resource "aws_sns_topic_policy" "eventbridge_topic" {
-  arn    = aws_sns_topic.eventbridge_topic.arn
-  policy = data.aws_iam_policy_document.sns_eventbridge_topic_policy.json
+  count  = var.create_sns_topics && var.create_event_processor_lambda ? 1 : 0
+  arn    = aws_sns_topic.eventbridge_topic[0].arn
+  policy = data.aws_iam_policy_document.sns_eventbridge_topic_policy[0].json
 }
 
 # IAM policy document for EventBridge SNS topic
 data "aws_iam_policy_document" "sns_eventbridge_topic_policy" {
+  count = var.create_sns_topics && var.create_event_processor_lambda ? 1 : 0
+  
   statement {
     sid    = "AllowEventBridgeToPublish"
     effect = "Allow"
@@ -46,7 +52,7 @@ data "aws_iam_policy_document" "sns_eventbridge_topic_policy" {
     ]
 
     resources = [
-      aws_sns_topic.eventbridge_topic.arn
+      aws_sns_topic.eventbridge_topic[0].arn
     ]
   }
 }
@@ -57,7 +63,8 @@ data "aws_iam_policy_document" "sns_eventbridge_topic_policy" {
 # -----------------------------------------------------------------------------
 
 resource "aws_sns_topic" "jump_host" {
-  name = "jump_host_alarm_topic"
+  count = var.create_sns_topics && var.create_jump_host && var.create_cloudwatch_alarms ? 1 : 0
+  name  = "jump_host_alarm_topic"
 
   tags = {
     Name    = "Jump Host Alarm Topic"
@@ -66,18 +73,22 @@ resource "aws_sns_topic" "jump_host" {
 }
 
 resource "aws_sns_topic_subscription" "jump_host" {
-  topic_arn = aws_sns_topic.jump_host.arn
+  count     = var.create_sns_topics && var.create_jump_host && var.create_cloudwatch_alarms ? 1 : 0
+  topic_arn = aws_sns_topic.jump_host[0].arn
   protocol  = "email"
   endpoint  = var.email
 }
 
 resource "aws_sns_topic_policy" "jump_host" {
-  arn    = aws_sns_topic.jump_host.arn
-  policy = data.aws_iam_policy_document.sns_jump_host_topic_policy.json
+  count  = var.create_sns_topics && var.create_jump_host && var.create_cloudwatch_alarms ? 1 : 0
+  arn    = aws_sns_topic.jump_host[0].arn
+  policy = data.aws_iam_policy_document.sns_jump_host_topic_policy[0].json
 }
 
 # IAM policy document for Jump Host SNS topic
 data "aws_iam_policy_document" "sns_jump_host_topic_policy" {
+  count = var.create_sns_topics && var.create_jump_host && var.create_cloudwatch_alarms ? 1 : 0
+  
   statement {
     sid    = "AllowCloudWatchToPublish"
     effect = "Allow"
@@ -92,7 +103,7 @@ data "aws_iam_policy_document" "sns_jump_host_topic_policy" {
     ]
 
     resources = [
-      aws_sns_topic.jump_host.arn
+      aws_sns_topic.jump_host[0].arn
     ]
   }
 }

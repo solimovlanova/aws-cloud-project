@@ -1,4 +1,4 @@
-resource "aws_db_instance" "default" {
+resource "aws_db_instance" "postgres" {
   count                        = var.create_db_instance_postgres ? 1 : 0
   allocated_storage            = 20
   db_name                      = ""
@@ -16,6 +16,16 @@ resource "aws_db_instance" "default" {
   copy_tags_to_snapshot        = true
   apply_immediately            = true
   vpc_security_group_ids       = [aws_security_group.postgres[0].id]
+  db_subnet_group_name         = aws_db_subnet_group.main[0].id
+}
+
+resource "aws_db_subnet_group" "main" {
+  count      = var.create_db_instance_postgres || var.create_db_instance_docdb ? 1 : 0
+  name       = "main"
+  subnet_ids = local.database_subnet_ids
+  tags = {
+    Name = "Main database"
+  }
 }
 
 
@@ -36,3 +46,13 @@ resource "aws_security_group_rule" "jump_host_postgres" {
   source_security_group_id = aws_security_group.jump_host[0].id
 }
 
+
+resource "aws_security_group_rule" "vpn_postgres" {
+  count                    = var.create_db_instance_postgres && var.create_vpn_server ? 1 : 0
+  protocol                 = "tcp"
+  from_port                = 5432
+  to_port                  = 5432
+  type                     = "ingress"
+  security_group_id        = aws_security_group.postgres[0].id
+  source_security_group_id = aws_security_group.vpn_sg[0].id
+}

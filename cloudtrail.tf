@@ -1,16 +1,20 @@
 resource "aws_cloudtrail" "main" {
+  count                         = var.enable_cloudtrail ? 1 : 0
   name                          = "main"
-  s3_bucket_name                = aws_s3_bucket.cloudtrail.id
+  s3_bucket_name                = aws_s3_bucket.cloudtrail[0].id
   s3_key_prefix                 = "prefix"
   include_global_service_events = false
 }
 
 resource "aws_s3_bucket" "cloudtrail" {
+  count         = var.enable_cloudtrail ? 1 : 0
   bucket        = "cloudtrail-${random_string.cloudtrail.id}"
   force_destroy = true
 }
 
 data "aws_iam_policy_document" "cloudtrail" {
+  count = var.enable_cloudtrail ? 1 : 0
+  
   statement {
     sid    = "AWSCloudTrailAclCheck"
     effect = "Allow"
@@ -24,7 +28,7 @@ data "aws_iam_policy_document" "cloudtrail" {
       "s3:GetBucketAcl"
     ]
     resources = [
-      aws_s3_bucket.cloudtrail.arn
+      aws_s3_bucket.cloudtrail[0].arn
     ]
   }
 
@@ -41,7 +45,7 @@ data "aws_iam_policy_document" "cloudtrail" {
       "s3:PutObject"
     ]
     resources = [
-      "${aws_s3_bucket.cloudtrail.arn}/*"
+      "${aws_s3_bucket.cloudtrail[0].arn}/*"
     ]
 
     condition {
@@ -53,7 +57,8 @@ data "aws_iam_policy_document" "cloudtrail" {
 }
 
 resource "aws_s3_bucket_policy" "cloudtrail" {
-  bucket = aws_s3_bucket.cloudtrail.id
-  policy = data.aws_iam_policy_document.cloudtrail.json
+  count  = var.enable_cloudtrail ? 1 : 0
+  bucket = aws_s3_bucket.cloudtrail[0].id
+  policy = data.aws_iam_policy_document.cloudtrail[0].json
 }
 

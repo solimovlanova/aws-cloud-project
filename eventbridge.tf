@@ -9,7 +9,7 @@ resource "aws_cloudwatch_event_rule" "s3_events" {
     detail-type = ["Object Created", "Object Deleted"]
     detail = {
       bucket = {
-        name = [aws_s3_bucket.test_eventbridge.bucket]
+        name = [aws_s3_bucket.test_eventbridge[0].bucket]
       }
     }
   })
